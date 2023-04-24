@@ -3,7 +3,7 @@ import axios from "axios";
 
 const config = {
   SMS_EMAIL: "erkaibragimov@gmail.com",
-  SMS_PASSWORD: "iY0pRNXwOzgla#QZ",
+  SMS_PASSWORD: "iUBs0hqeILCZ0DF8folZCX50h6DEvG3vXXsevoyb",
 };
 
 const authService = async (email: string, password: string) => {
@@ -17,25 +17,24 @@ const authService = async (email: string, password: string) => {
       method: "POST",
       data: reqBody,
     });
-    console.log(response);
-    console.log("here");
-    const data: any = await response;
 
-    if (response.status >= 200 && response.status < 300) {
-      data.success = true;
-      return data;
+    const status: number = response.status;
+    const statusText: string = response.statusText;
+    const token: string = response.data.data.token;
+
+    if (status >= 200 && response.status < 300 && statusText == "OK" && token) {
+      return { token, status, statusText, success: true };
     }
 
-    data.success = false;
-    return data;
+    return { statusText: "Failed", success: false };
   } catch (error: any) {
-    console.log(error.message);
+    // console.log(error.message);
   }
 };
 
 export const sendSmsTo = async (phoneNumber: string, message: string) => {
   const authInfo = await authService(config.SMS_EMAIL, config.SMS_PASSWORD);
-  if (!authInfo.success) {
+  if (!authInfo!.success) {
     return authInfo;
   }
 
@@ -48,18 +47,17 @@ export const sendSmsTo = async (phoneNumber: string, message: string) => {
   const response = await axios("https://notify.eskiz.uz/api/message/sms/send", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${authInfo.data.token}`,
+      Authorization: `Bearer ${authInfo!.token}`,
     },
     data: reqBody,
   });
 
-  const data: any = await response;
+  const status: number = response.status;
+  const statusText: string = response.statusText;
 
-  if (response.status >= 200 && response.status < 300) {
-    data.success = true;
-    return data;
+  if (status >= 200 && status < 300 && statusText !== "OK") {
+    return { status, statusText, success: true };
   }
 
-  data.success = false;
-  return data;
+  return { statusText: "Failed", success: false };
 };

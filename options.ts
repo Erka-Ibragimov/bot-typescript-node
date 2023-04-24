@@ -21,16 +21,6 @@ export const gameOptions = {
   }),
 };
 
-export const menuList = {
-  reply_markup: JSON.stringify({
-    inline_keyboard: [
-      [{ text: "Evos", callback_data: "1" }],
-      [{ text: "Kfc", callback_data: "2" }],
-      [{ text: "Grand Lavash", callback_data: "3" }],
-    ],
-  }),
-};
-
 export const againOptions = {
   reply_markup: JSON.stringify({
     inline_keyboard: [[{ text: "Играть еше раз", callback_data: "/again" }]],
@@ -39,7 +29,8 @@ export const againOptions = {
 
 export const keyboardForRegAndLog = {
   reply_markup: {
-    keyboard: [["Пройти верификацию", "Не проходить верификацию"]],
+    keyboard: [["Пройти верификацию"], ["Не проходить верификацию"]],
+    resize_keyboard: true,
     one_time_keyboard: true,
     force_reply: true,
   },
@@ -78,13 +69,25 @@ export const sendContact = {
   },
 };
 
+export const basket = {
+  reply_markup: {
+    keyboard: [[{ text: "Корзина" }]],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+  },
+};
+
 export const evosMenu = {
   reply_markup: JSON.stringify({
-    inline_keyboard: [
-      [{ text: "Lavash", callback_data: "Evos-Lavash" }],
-      [{ text: "Burger", callback_data: "Evos-Burger" }],
-      [{ text: "Mini lavash", callback_data: "Evos-Lavash-Mini" }],
-      [{ text: "Mini burger", callback_data: "Evos-Burger-Mini" }],
+    keyboard: [
+      [
+        { text: "Lavash", callback_data: "Evos-Lavash" },
+        { text: "Burger", callback_data: "Evos-Burger" },
+      ],
+      [
+        { text: "Mini lavash", callback_data: "Evos-Lavash-Mini" },
+        { text: "Mini burger", callback_data: "Evos-Burger-Mini" },
+      ],
       [
         {
           text: "Назад",
@@ -97,9 +100,11 @@ export const evosMenu = {
 
 export const kfcMenu = {
   reply_markup: JSON.stringify({
-    inline_keyboard: [
-      [{ text: "Box Master 1", callback_data: "Box-1" }],
-      [{ text: "Box Master 2", callback_data: "Box-2" }],
+    keyboard: [
+      [
+        { text: "Box Master 1", callback_data: "Box-1" },
+        { text: "Box Master 2", callback_data: "Box-2" },
+      ],
       [{ text: "Box Master 3", callback_data: "Box-3" }],
       [
         {
@@ -113,9 +118,11 @@ export const kfcMenu = {
 
 export const grandMenu = {
   reply_markup: JSON.stringify({
-    inline_keyboard: [
-      [{ text: "Tandir Lavash", callback_data: "Tandir" }],
-      [{ text: "Mandir Lavash", callback_data: "Mandir" }],
+    keyboard: [
+      [
+        { text: "Tandir Lavash", callback_data: "Tandir" },
+        { text: "Mandir Lavash", callback_data: "Mandir" },
+      ],
       [{ text: "Tudu Lavash", callback_data: "Tudu" }],
       [
         {
@@ -123,6 +130,40 @@ export const grandMenu = {
           callback_data: "back",
         },
       ],
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    force_reply: true,
+  }),
+};
+
+export const menuList = {
+  reply_markup: JSON.stringify({
+    inline_keyboard: [
+      [{ text: "Evos", callback_data: "1" }],
+      [{ text: "Kfc", callback_data: "2" }],
+      [{ text: "Grand Lavash", callback_data: "3" }],
+    ],
+  }),
+};
+
+export const basketAndBack = {
+  reply_markup: {
+    keyboard: [[{ text: "Корзина" }], [{ text: "Назад" }]],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+  },
+};
+
+export const selecFood = {
+  reply_markup: JSON.stringify({
+    inline_keyboard: [
+      [
+        { text: "-", callback_data: "-" },
+        { text: "1", callback_data: "count" },
+        { text: "+", callback_data: "+" },
+      ],
+      [{ text: "В корзину", callback_data: "basket" }],
     ],
   }),
 };
