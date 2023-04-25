@@ -1,2 +1,1 @@
-const a = Math.floor(Math.random() * 10);
-console.log(a);
+const key = MTYfMGbjmpQjc55isgqYIYuC5eCjTYgY;

@@ -13,8 +13,14 @@ import {
   selecFood,
   basketAndBack,
   basket,
+  evosMenuWithBasket,
+  kfcMenuWithBasket,
+  deleteBasket,
+  location,
+  keyboardForLocation,
 } from "./options";
 import { sendSmsTo } from "./gateway";
+import axios from "axios";
 type ChatsObj = {
   [id: string]: string;
 };
@@ -22,7 +28,7 @@ type ChatsObj = {
 const token: string = "5872614035:AAHSCk9b9IOutumdws1XefI2x-simRpGCL8";
 const bot = new TelegramApi(token, { polling: true });
 const chats: ChatsObj = {};
-const resultBasket: any = {};
+let resultBasket: any = {};
 
 const startGame = async (id: number): Promise<void> => {
   await bot.sendMessage(id, "Сейчас я загадаю число от 0 до 9, ты должен его отгадать!");
@@ -41,6 +47,29 @@ const randomSixNumber = () => {
   return code;
 };
 
+const forBasket = async (id: number) => {
+  await bot.sendMessage(id, "В корзине:", deleteBasket as any);
+  let totalItem: string = "";
+  let sumItem: number = 0;
+  const detailItems = {
+    inline_keyboard: [
+      [
+        { text: "Оформить заказ", callback_data: "to-order" },
+        { text: "Очистить корзину", callback_data: "remove-items" },
+      ],
+    ],
+  };
+
+  for (let item in resultBasket) {
+    sumItem += +resultBasket[item];
+    totalItem += `${item} - ${resultBasket[item]} сумм\n`;
+    detailItems.inline_keyboard.push([{ text: `Удалить - ${item}`, callback_data: `${item}` }]);
+  }
+
+  totalItem += `Товары: ${sumItem}\nДоставка: 10000 сумм\nИтого: ${+sumItem + 10000} сумм\n`;
+  return bot.sendMessage(id, totalItem, { reply_markup: JSON.stringify(detailItems) } as any);
+};
+
 let checkReg: boolean = false;
 let checkFio: boolean = false;
 let previousMessageId: number = 0;
@@ -49,6 +78,7 @@ let prevText: string = "a";
 let prevPhoto: string = "";
 let something: any;
 let phoneNumber: string = "";
+let checkLocation: boolean = false;
 let totalStep = {
   step: 0,
 };
@@ -71,13 +101,14 @@ const start = async (): Promise<void> => {
       // };
       if (totalStep.step == 2) {
         totalStep.step -= 1;
-        return await bot.sendMessage(id, prevText, evosMenu as any);
+        return await bot.sendMessage(id, prevText, something as any);
       }
       if (totalStep.step == 1) {
         totalStep.step -= 1;
         await bot.sendMessage(id, "Вы так же можете посмотреть что у вас в карзине!", basket as any);
         return await bot.sendMessage(id, "Это наши рестораны!", menuList as any);
       }
+      return await bot.sendMessage(id, "Это наши рестораны!", menuList as any);
       // }
     }
     if (text == "/start") {
@@ -152,19 +183,36 @@ const start = async (): Promise<void> => {
       const code = randomSixNumber();
       // await sendSmsTo(phoneNumber, `Ваш код: ${code}`);
 
-      return await bot.sendMessage(id, `Мы вам на номер телефона ${phoneNumber} отправили код`);
+      return await bot.sendMessage(id, `Мы вам на номер телефона ${phoneNumber} отправили код (тестовый 123)`);
     }
     if (text == checkCode || text == "123") {
-      return await bot
-        .sendMessage(id, "Спасибо что пользуетесь нашим ботом, С какого ресторана желаете заказать?", menuList as any)
-        .then((sentMessage) => {
-          previousMessageId = sentMessage.message_id;
-        });
+      checkLocation = true;
+      return await bot.sendMessage(id, "Отправте ваш адрес", location as any);
+      // return await bot
+      //   .sendMessage(id, "Спасибо что пользуетесь нашим ботом, С какого ресторана желаете заказать?", menuList as any)
+      //   .then((sentMessage) => {
+      //     previousMessageId = sentMessage.message_id;
+      //   });
+    }
+
+    if (msg.location && checkLocation) {
+      const location = await axios.get(
+        `https://www.mapquestapi.com/geocoding/v1/reverse?key=MTYfMGbjmpQjc55isgqYIYuC5eCjTYgY&location=${msg.location.latitude},${msg.location.longitude}&includeRoadMetadata=true&includeNearestIntersection=true`
+      );
+      const street = location.data.results[0].locations[0].street;
+      const town = location.data.results[0].locations[0].adminArea5;
+
+      return await bot.sendMessage(
+        id,
+        `Вы подтверждаете, ваш город: ${town}, ваша улица: ${street} ?`,
+        keyboardForLocation as any
+      );
     }
 
     if (text == "Lavash") {
       totalStep.step += 1;
       prevText = "Меню ресторана Evos!";
+      something = evosMenu;
       await bot.sendMessage(id, "Выбирайте", basketAndBack as any);
       await bot.sendPhoto(id, "./images/5e5ff5fdce05c.jpg").then((sentPhoto) => {
         previousPhotoId = sentPhoto.message_id;
@@ -172,7 +220,25 @@ const start = async (): Promise<void> => {
       await bot.sendMessage(id, "Это наш Evos лаваш");
       return await bot.sendMessage(id, "Стандарт лаваш - цена 25000 сумм", selecFood as any);
     }
+    if (text == "Box Master 1") {
+      totalStep.step += 1;
+      prevText = "Меню ресторана КФС!";
+      something = kfcMenu;
+      await bot.sendMessage(id, "Выбирайте", basketAndBack as any);
+      await bot.sendPhoto(id, "./images/5e5ff5fdce05c.jpg").then((sentPhoto) => {
+        previousPhotoId = sentPhoto.message_id;
+      });
+      await bot.sendMessage(id, "Это наш КФС Box Master 1");
+      return await bot.sendMessage(id, "Box Master 1 - цена 40000 сумм", selecFood as any);
+    }
 
+    if (text == "Корзина") {
+      if (Object.keys(resultBasket).length == 0) {
+        await bot.sendSticker(id, "https://tlgrm.eu/_/stickers/8a1/9aa/8a19aab4-98c0-37cb-a3d4-491cb94d7e12/7.webp");
+        return await bot.sendMessage(id, "Корзина пуста!", deleteBasket as any);
+      }
+      return await forBasket(id);
+    }
     return await bot.sendMessage(id, "Я вас не понимаю, попробуйте еше раз!", mainMenu as any);
   });
 
@@ -212,9 +278,36 @@ const start = async (): Promise<void> => {
       resultBasket[arrNameCost![0]] = arrNameCost![1].split(" ")[1];
 
       if (prevText.split(" ")[2] == "Evos!") {
+        totalStep.step -= 1;
+        await bot.sendSticker(id!, "https://tlgrm.eu/_/stickers/8a1/9aa/8a19aab4-98c0-37cb-a3d4-491cb94d7e12/1.webp");
+        if (Object.keys(resultBasket).length) {
+          return await bot.sendMessage(id!, `Evos!, Вы заказали "${arrNameCost![0]}"`, evosMenuWithBasket as any);
+        }
         return await bot.sendMessage(id!, `Evos!, Вы заказали "${arrNameCost![0]}"`, evosMenu as any);
       }
+      if (prevText.split(" ")[2] == "КФС!") {
+        totalStep.step -= 1;
+        await bot.sendSticker(id!, "https://tlgrm.eu/_/stickers/8a1/9aa/8a19aab4-98c0-37cb-a3d4-491cb94d7e12/1.webp");
+        if (Object.keys(resultBasket).length) {
+          return await bot.sendMessage(id!, `КФС!, Вы заказали "${arrNameCost![0]}"`, kfcMenuWithBasket as any);
+        }
+        return await bot.sendMessage(id!, `КФС!, Вы заказали "${arrNameCost![0]}"`, kfcMenu as any);
+      }
     }
+    if (data == "remove-items") {
+      resultBasket = {};
+      await bot.sendMessage(id!, "Корзина очищена!");
+      return await bot.sendMessage(id!, "Это наши рестораны!", menuList as any);
+    }
+    if (resultBasket.hasOwnProperty(data)) {
+      delete resultBasket[`${data}`];
+      if (Object.keys(resultBasket).length == 0) {
+        await bot.sendSticker(id!, "https://tlgrm.eu/_/stickers/8a1/9aa/8a19aab4-98c0-37cb-a3d4-491cb94d7e12/7.webp");
+        return await bot.sendMessage(id!, "Корзина пуста!", deleteBasket as any);
+      }
+      return await forBasket(id!);
+    }
+
     // if (data == "back") {
     //   if (msg && msg.message && msg.message.message_id) {
     //     await bot.deleteMessage(id!, msg.message.message_id);

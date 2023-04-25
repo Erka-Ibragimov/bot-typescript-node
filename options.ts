@@ -1,3 +1,19 @@
+export const location = {
+  reply_markup: JSON.stringify({
+    keyboard: [[{ text: "Отправить локацию", request_location: true }]],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+  }),
+};
+
+export const keyboardForLocation = {
+  reply_markup: JSON.stringify({
+    keyboard: [[{ text: "Да, мой адрес" }], [{ text: "Нет, не мой адрес" }]],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+  }),
+};
+
 export const gameOptions = {
   reply_markup: JSON.stringify({
     inline_keyboard: [
@@ -80,14 +96,7 @@ export const basket = {
 export const evosMenu = {
   reply_markup: JSON.stringify({
     keyboard: [
-      [
-        { text: "Lavash", callback_data: "Evos-Lavash" },
-        { text: "Burger", callback_data: "Evos-Burger" },
-      ],
-      [
-        { text: "Mini lavash", callback_data: "Evos-Lavash-Mini" },
-        { text: "Mini burger", callback_data: "Evos-Burger-Mini" },
-      ],
+      [{ text: "Lavash", callback_data: "Evos-Lavash" }],
       [
         {
           text: "Назад",
@@ -95,17 +104,34 @@ export const evosMenu = {
         },
       ],
     ],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    force_reply: true,
+  }),
+};
+
+export const evosMenuWithBasket = {
+  reply_markup: JSON.stringify({
+    keyboard: [
+      [{ text: "Корзина" }],
+      [{ text: "Lavash", callback_data: "Evos-Lavash" }],
+      [
+        {
+          text: "Назад",
+          callback_data: "back",
+        },
+      ],
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    force_reply: true,
   }),
 };
 
 export const kfcMenu = {
   reply_markup: JSON.stringify({
     keyboard: [
-      [
-        { text: "Box Master 1", callback_data: "Box-1" },
-        { text: "Box Master 2", callback_data: "Box-2" },
-      ],
-      [{ text: "Box Master 3", callback_data: "Box-3" }],
+      [{ text: "Box Master 1", callback_data: "Box-1" }],
       [
         {
           text: "Назад",
@@ -113,6 +139,27 @@ export const kfcMenu = {
         },
       ],
     ],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    force_reply: true,
+  }),
+};
+
+export const kfcMenuWithBasket = {
+  reply_markup: JSON.stringify({
+    keyboard: [
+      [{ text: "Корзина" }],
+      [{ text: "Box Master 1", callback_data: "Box-1" }],
+      [
+        {
+          text: "Назад",
+          callback_data: "back",
+        },
+      ],
+    ],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+    force_reply: true,
   }),
 };
 
@@ -142,7 +189,7 @@ export const menuList = {
     inline_keyboard: [
       [{ text: "Evos", callback_data: "1" }],
       [{ text: "Kfc", callback_data: "2" }],
-      [{ text: "Grand Lavash", callback_data: "3" }],
+      // [{ text: "Grand Lavash", callback_data: "3" }],
     ],
   }),
 };
@@ -166,4 +213,12 @@ export const selecFood = {
       [{ text: "В корзину", callback_data: "basket" }],
     ],
   }),
+};
+
+export const deleteBasket = {
+  reply_markup: {
+    keyboard: [[{ text: "Назад" }], [{ text: "Корзина" }]],
+    resize_keyboard: true,
+    one_time_keyboard: true,
+  },
 };
